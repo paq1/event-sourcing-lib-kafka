@@ -30,12 +30,18 @@ class ResultsListener(Generic[T]):
             print(f"[ResultsListener] correlation_id : {correlation_id}")
             print("keys :")
             print(self.subscriptions.subscriptions.keys())
-            promesse: Future[EnveloppeKafkaResult[SubjectResultKafka]] = self.subscriptions.get(correlation_id)
-            promesse.set_result(
-                EnveloppeKafkaResult[SubjectResultKafka](
-                    SubjectResultKafka(correlation_id, {"msg": "gg a toi"})
+            try:
+                promesse: Future[EnveloppeKafkaResult[SubjectResultKafka]] = self.subscriptions.get(correlation_id)
+                promesse.set_result(
+                    EnveloppeKafkaResult[SubjectResultKafka](
+                        SubjectResultKafka(correlation_id, {"msg": "gg a toi"})
+                    )
                 )
-            )
+            except Exception:
+                print(
+                    f"[ResultsListener#run#exception] pas de souscription en cours pour le correlation id : {correlation_id}"
+                )
+
             if not self.running:
                 print("[ResultsListener] stopping loop")
                 break

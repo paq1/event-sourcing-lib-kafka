@@ -67,8 +67,8 @@ async def main():
     print(f'resultat 2 du traitement : {traitement2.result}')
 
     # on arrete nos thread
-    th_commands_listener.stop()
-    th_results_listener.stop()
+    #th_commands_listener.stop()
+    #th_results_listener.stop()
     th_commands_listener.join()
     th_results_listener.join()
 
