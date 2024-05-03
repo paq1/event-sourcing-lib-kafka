@@ -21,25 +21,25 @@ class ResultsListener(Generic[T]):
         self.running = True
 
     def run(self):
-        while self.running:
-            for msg in self.consumer:
-                key: str = msg.key.decode('utf-8')
-                print(msg)
-                print(f"[results-listener] traitement de la command : {key}")
-                # mkdmkd todo traitement de la command ici
-                correlation_id: str = key
-                print(f"[results-listener] correlation_id : {correlation_id}")
-                print("keys :")
-                print(self.subscriptions.subscriptions.keys())
-                promesse: Future[EnveloppeKafkaResult[SubjectResultKafka]] = self.subscriptions.get(correlation_id)
-                promesse.set_result(
-                    EnveloppeKafkaResult[SubjectResultKafka](
-                        SubjectResultKafka(correlation_id, {"msg": "gg a toi"})
-                    )
+        for msg in self.consumer:
+            key: str = msg.key.decode('utf-8')
+            print(msg)
+            print(f"[ResultsListener] traitement du message de resultat : {key}")
+            # mkdmkd todo traitement de la command ici
+            correlation_id: str = key
+            print(f"[ResultsListener] correlation_id : {correlation_id}")
+            print("keys :")
+            print(self.subscriptions.subscriptions.keys())
+            promesse: Future[EnveloppeKafkaResult[SubjectResultKafka]] = self.subscriptions.get(correlation_id)
+            promesse.set_result(
+                EnveloppeKafkaResult[SubjectResultKafka](
+                    SubjectResultKafka(correlation_id, {"msg": "gg a toi"})
                 )
-                if not self.running:
-                    print("[commands-listener] stopping loop")
-                    break
+            )
+            if not self.running:
+                print("[ResultsListener] stopping loop")
+                break
+        print("[ResultsListener] MKDMKD - thread finished")
 
     def stop(self):
         print("[results-listener] stop")

@@ -1,8 +1,8 @@
+import json
 from threading import Thread
 
 import asyncio
 from kafka import KafkaProducer
-import json
 
 from event_sourcing.app.kafka_command_engine import KafkaCommandEngine, SubjectResultKafka
 from event_sourcing.app.kafka_result_subscription import KafkaResultSubscriptions
@@ -69,8 +69,8 @@ async def main():
     # on arrete nos thread
     th_commands_listener.stop()
     th_results_listener.stop()
-    # th_commands_listener.join()
-    # th_results_listener.join()
+    th_commands_listener.join()
+    th_results_listener.join()
 
 
 if __name__ == "__main__":

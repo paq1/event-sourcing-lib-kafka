@@ -17,28 +17,29 @@ class CommandsListener(Generic[T]):
         self.running = True
 
     def run(self):
-        while self.running:
-            print("MKDMKD - running loop")
-            for msg in self.consumer:
-                key = msg.key.decode('utf-8')
-                print(f"[commands-listener] received message {key}")
-                print(f"[commands-listener] traitement de la command : {key}")
-                # mkdmkd todo traitement de la command ici
+        print("MKDMKD - running loop")
+        for msg in self.consumer:
+            key = msg.key.decode('utf-8')
+            print(f"[CommandsListener] received message {key}")
+            print(f"[CommandsListener] traitement de la command : {key}")
+            # mkdmkd todo traitement de la command ici avec le command dispatcher
+            # mkdmkd todo insertion en db
 
-                message_send_f = self.__produce(
-                    topic="subject-cqrs-results",
-                    message={"result": "autre donnees"},
-                    key=key
-                )
+            message_send_f = self.__produce(
+                topic="subject-cqrs-results",
+                message={"result": "autre donnees"},
+                key=key
+            )
 
-                if message_send_f.succeeded():
-                    print("[commands-listener] message sent successfully")
-                else:
-                    print("[commands-listener] message sent failed")
+            if message_send_f.succeeded():
+                print("[CommandsListener] message sent successfully")
+            else:
+                print("[CommandsListener] message sent failed")
 
-                if not self.running:
-                    print("[commands-listener] stopping loop")
-                    break
+            if not self.running:
+                print("[CommandsListener] stopping loop")
+                break
+        print("[CommandsListener] MKDMKD - thread finished")
 
     def stop(self):
         print("[commands-listener] stop")
