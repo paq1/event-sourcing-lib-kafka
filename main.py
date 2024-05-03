@@ -3,21 +3,9 @@ import asyncio
 from event_sourcing.app import *
 import logging
 
+from event_sourcing.logging_config import setup_logging
+
 logger = logging.getLogger(__name__)
-
-
-def setup_logging(debug=True, logging_level=logging.INFO):
-    if debug:
-        logging.basicConfig(
-            level=logging_level
-        )
-    else:
-        logging.basicConfig(
-            filename="main.log",
-            level=logging_level
-        )
-    mode = "dev" if debug else "production"
-    logging.getLogger(__name__).info(f"lancement du programme en mode [{mode}]")
 
 
 async def main(debug=True, logging_level=logging.INFO):
