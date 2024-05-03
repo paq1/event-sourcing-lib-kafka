@@ -1,3 +1,4 @@
+import logging
 from concurrent.futures import Future
 from typing import Generic, TypeVar
 
@@ -10,6 +11,8 @@ T = TypeVar('T')
 
 
 class ResultsListener(Generic[T]):
+    logger = logging.getLogger(f"{__name__}#ResultsListener")
+
     def __init__(self, topic_commands_name: str, subscriptions: KafkaResultSubscriptions[SubjectResultKafka]):
         self.consumer = KafkaConsumer(
             topic_commands_name,
@@ -23,13 +26,11 @@ class ResultsListener(Generic[T]):
     def run(self):
         for msg in self.consumer:
             key: str = msg.key.decode('utf-8')
-            print(msg)
-            print(f"[ResultsListener] traitement du message de resultat : {key}")
+            self.logger.debug(msg)
+            self.logger.debug(f"traitement du message de resultat : {key}")
             # mkdmkd todo traitement de la command ici
             correlation_id: str = key
-            print(f"[ResultsListener] correlation_id : {correlation_id}")
-            print("keys :")
-            print(self.subscriptions.subscriptions.keys())
+            self.logger.debug(f"correlation_id : {correlation_id}")
             try:
                 promesse: Future[EnveloppeKafkaResult[SubjectResultKafka]] = self.subscriptions.get(correlation_id)
                 promesse.set_result(
@@ -38,15 +39,14 @@ class ResultsListener(Generic[T]):
                     )
                 )
             except Exception:
-                print(
-                    f"[ResultsListener#run#exception] pas de souscription en cours pour le correlation id : {correlation_id}"
+                self.logger.warn(
+                    f"pas de souscription en cours pour le correlation id : {correlation_id}"
                 )
 
             if not self.running:
-                print("[ResultsListener] stopping loop")
+                self.logger.info("stopping loop")
                 break
-        print("[ResultsListener] MKDMKD - thread finished")
+        self.logger.info("thread finished")
 
     def stop(self):
-        print("[results-listener] stop")
         self.running = False

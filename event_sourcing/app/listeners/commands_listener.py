@@ -1,3 +1,4 @@
+import logging
 from typing import Generic, TypeVar
 
 from kafka import KafkaConsumer, KafkaProducer
@@ -6,6 +7,8 @@ T = TypeVar('T')
 
 
 class CommandsListener(Generic[T]):
+    logger = logging.getLogger(f"{__name__}#CommandsListener")
+
     def __init__(self, topic_commands_name: str, producer: KafkaProducer):
         self.consumer = KafkaConsumer(
             topic_commands_name,
@@ -17,11 +20,10 @@ class CommandsListener(Generic[T]):
         self.running = True
 
     def run(self):
-        print("MKDMKD - running loop")
         for msg in self.consumer:
             key = msg.key.decode('utf-8')
-            print(f"[CommandsListener] received message {key}")
-            print(f"[CommandsListener] traitement de la command : {key}")
+            self.logger.debug(f"received message {key}")
+            self.logger.debug(f"traitement de la command : {key}")
             # mkdmkd todo traitement de la command ici avec le command dispatcher
             # mkdmkd todo insertion en db
 
@@ -32,17 +34,16 @@ class CommandsListener(Generic[T]):
             )
 
             if message_send_f.succeeded():
-                print("[CommandsListener] message sent successfully")
+                self.logger.debug("message sent successfully")
             else:
-                print("[CommandsListener] message sent failed")
+                self.logger.error("message sent failed")
 
             if not self.running:
-                print("[CommandsListener] stopping loop")
+                self.logger.info("stopping loop")
                 break
-        print("[CommandsListener] MKDMKD - thread finished")
+        self.logger.info("thread finished")
 
     def stop(self):
-        print("[commands-listener] stop")
         self.running = False
 
     def __produce(self, message: dict, topic: str, key: str):

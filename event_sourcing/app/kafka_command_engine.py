@@ -1,4 +1,5 @@
 import json
+import logging
 import uuid
 from typing import Generic, TypeVar
 
@@ -13,6 +14,8 @@ COMMAND = TypeVar('COMMAND')
 EVENT = TypeVar('EVENT')
 
 
+
+
 class SubjectResultKafka(object):
     def __init__(self, key: str, content: dict[str, str]):
         self.key = key
@@ -23,6 +26,8 @@ class SubjectResultKafka(object):
 
 
 class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
+    logger = logging.getLogger(f"{__name__}#KafkaCommandEngine")
+
     def __init__(self, subscriptions: KafkaResultSubscriptions[SubjectResultKafka],
                  topic_name: str = "subject-cqrs-commands"):
         self.producer = KafkaProducer(bootstrap_servers='192.168.1.61:9092',
@@ -34,20 +39,20 @@ class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
 
     async def offer(self) -> EnveloppeKafkaResult[SubjectResultKafka]:
         correlation_id = str(uuid.uuid4())
-        print(f"[kafka-command-engin#offer] creation du correlation id : {correlation_id}")
+        self.logger.debug(f"[kafka-command-engin#offer] creation du correlation id : {correlation_id}")
         self.__subscriptions.subscribe(correlation_id)
         produce: FutureRecordMetadata = self.__produce(
             {'ma_command': 'toto en slip'},
             "subject-cqrs-commands",  # fixme pas magique string
             key=correlation_id
         )
-        await asyncio.sleep(1)
+
         if produce.succeeded():
-            print("[kafka-command-engin#offer] successfully produced message command")
+            self.logger.debug("[kafka-command-engin#offer] successfully produced message command")
         else:
-            print("failed to produce a message")
+            self.logger.error("failed to produce a message")
         result: EnveloppeKafkaResult[SubjectResultKafka] = self.__subscriptions.get(correlation_id).result(timeout=30)
-        print(f"[kafka-command-engin#offer] correlation : {correlation_id}")
+        self.logger.debug(f"[kafka-command-engin#offer] correlation : {correlation_id}")
         self.__subscriptions.unsubscribe(correlation_id)
         return result
 

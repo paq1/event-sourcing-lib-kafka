@@ -1,6 +1,6 @@
 from concurrent.futures import Future
 from typing import Generic, TypeVar
-
+import logging
 T = TypeVar('T')
 
 
@@ -10,6 +10,7 @@ class EnveloppeKafkaResult(Generic[T]):
 
 
 class KafkaResultSubscriptions(Generic[T]):
+    logger = logging.getLogger(f"{__name__}#KafkaResultSubscriptions")
 
     def __init__(self):
         self.subscriptions: dict[str, Future[EnveloppeKafkaResult[T]]] = {}
@@ -26,6 +27,6 @@ class KafkaResultSubscriptions(Generic[T]):
         self.subscriptions.pop(correlation_id)
 
     def get(self, correlation_id: str) -> Future[EnveloppeKafkaResult[T]]:
-        print(f"try get with id {correlation_id}")
-        print(f"try get from {self.subscriptions.keys()}")
+        self.logger.debug(f"try get with id {correlation_id}")
+        self.logger.debug(f"try get from {self.subscriptions.keys()}")
         return self.subscriptions[correlation_id]

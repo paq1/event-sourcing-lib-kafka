@@ -1,4 +1,5 @@
 import json
+import logging
 
 from kafka import KafkaProducer
 
@@ -9,6 +10,8 @@ from event_sourcing.app.listeners.threads import ThreadListenerCommands, ThreadL
 
 
 class ListenersKafkaHandler(object):
+    logger = logging.getLogger(f"{__name__}#ListenersKafkaHandler")
+
     def __init__(self, kafka_result_subscriptions: KafkaResultSubscriptions[SubjectResultKafka]):
         self.kafka_producer = KafkaProducer(bootstrap_servers='192.168.1.61:9092',
                                             value_serializer=lambda v: json.dumps(v).encode('utf-8'))
