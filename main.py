@@ -1,8 +1,8 @@
+import logging
+
 import asyncio
 
 from event_sourcing.app import *
-import logging
-
 from event_sourcing.logging_config import setup_logging
 
 logger = logging.getLogger(__name__)

@@ -3,7 +3,6 @@ import logging
 import uuid
 from typing import Generic, TypeVar
 
-import asyncio
 from kafka import KafkaProducer
 from kafka.producer.future import FutureRecordMetadata
 
@@ -12,8 +11,6 @@ from event_sourcing.app.kafka_result_subscription import KafkaResultSubscription
 STATE = TypeVar('STATE')
 COMMAND = TypeVar('COMMAND')
 EVENT = TypeVar('EVENT')
-
-
 
 
 class SubjectResultKafka(object):

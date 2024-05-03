@@ -1,6 +1,7 @@
+import logging
 from concurrent.futures import Future
 from typing import Generic, TypeVar
-import logging
+
 T = TypeVar('T')
 
 
