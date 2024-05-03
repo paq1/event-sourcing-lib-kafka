@@ -44,7 +44,6 @@ class CommandsListener(Generic[T]):
     def stop(self):
         print("[commands-listener] stop")
         self.running = False
-        self.consumer.close()
 
     def __produce(self, message: dict, topic: str, key: str):
         response_f = self.producer.send(topic=topic, key=key.encode(), value=message)

@@ -13,4 +13,5 @@ class ThreadListenerResults(Thread):
 
     def stop(self):
         print("[ThreadListenerCommands#stop] Stopping listener...")
+        self.results_listener.stop()
         print("[ThreadListenerCommands#stop] listener stopped")

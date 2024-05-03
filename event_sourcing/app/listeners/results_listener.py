@@ -50,4 +50,3 @@ class ResultsListener(Generic[T]):
     def stop(self):
         print("[results-listener] stop")
         self.running = False
-        self.consumer.close()
