@@ -24,7 +24,8 @@ class CommandsListener(Generic[T]):
     def run(self):
         for msg in self.consumer:
             key = msg.key.decode('utf-8')
-            self.logger.debug(f"received message {key}")
+            value = msg.value.decode('utf-8')
+            self.logger.debug(f"received message {key} {value}")
             # mkdmkd todo traitement de la command ici avec le command dispatcher
             self.logger.warn("[not implemented] le gestionnaire de commande n'est pas encore implémenté")
             self.logger.warn("[not implemented] pas de génération d'evenements")

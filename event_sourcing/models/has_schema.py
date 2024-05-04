@@ -1,0 +1,3 @@
+class HasSchema(object):
+
+    def schema(self) -> dict: ...

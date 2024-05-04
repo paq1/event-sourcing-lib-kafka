@@ -4,9 +4,11 @@ from typing import Generic, TypeVar
 
 from event_sourcing.app.kafka_result_subscription import KafkaResultSubscriptions, EnveloppeKafkaResult
 from event_sourcing.core.queue_message_producer import QueueMessageProducerHandler
+from event_sourcing.models.command import Command
+from event_sourcing.models.has_schema import HasSchema
 
 STATE = TypeVar('STATE')
-COMMAND = TypeVar('COMMAND')
+COMMAND = TypeVar('COMMAND', bound=HasSchema)
 EVENT = TypeVar('EVENT')
 
 
@@ -34,13 +36,13 @@ class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
 
         self.__subscriptions = subscriptions
 
-    async def offer(self) -> EnveloppeKafkaResult[SubjectResultKafka]:
+    async def offer(self, command: Command[COMMAND]) -> EnveloppeKafkaResult[SubjectResultKafka]:
         correlation_id = str(uuid.uuid4())
         self.logger.debug(f"[kafka-command-engin#offer] creation du correlation id : {correlation_id}")
         self.__subscriptions.subscribe(correlation_id)
         self.queue_producer_handler.produce_message_sync(
-            {'ma_command': 'toto en slip'},
-            "subject-cqrs-commands",  # fixme pas magique string
+            self.__from_command_to_record(command),
+            "subject-cqrs-commands",  # fixme pas de magic string
             key=correlation_id
         )
 
@@ -48,3 +50,11 @@ class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
         self.logger.debug(f"[kafka-command-engin#offer] correlation : {correlation_id}")
         self.__subscriptions.unsubscribe(correlation_id)
         return result
+
+    @staticmethod
+    def __from_command_to_record(command: Command[COMMAND]) -> dict:
+        return {
+            "name": command.handler_name,
+            "body": command.command.schema(),
+            "entityId": command.entityId,
+        }
