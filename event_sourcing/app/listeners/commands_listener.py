@@ -32,11 +32,11 @@ class CommandsListener(Generic[T]):
                 message={"result": "autre donnees"},
                 key=key
             )
-
-            if message_send_f.succeeded():
+            try:
+                _ = message_send_f.get(timeout=10)
                 self.logger.debug("message sent successfully")
-            else:
-                self.logger.error("message sent failed")
+            except Exception as e:
+                self.logger.error(e)
 
             if not self.running:
                 self.logger.info("stopping loop")

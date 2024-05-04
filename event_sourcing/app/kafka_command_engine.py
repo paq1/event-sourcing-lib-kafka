@@ -38,16 +38,17 @@ class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
         correlation_id = str(uuid.uuid4())
         self.logger.debug(f"[kafka-command-engin#offer] creation du correlation id : {correlation_id}")
         self.__subscriptions.subscribe(correlation_id)
-        produce: FutureRecordMetadata = self.__produce(
+        produce_f: FutureRecordMetadata = self.__produce(
             {'ma_command': 'toto en slip'},
             "subject-cqrs-commands",  # fixme pas magique string
             key=correlation_id
         )
+        try:
+            _ = produce_f.get(timeout=10)
+            self.logger.debug("successfully produced message command")
+        except Exception as e:
+            self.logger.error(e)
 
-        if produce.succeeded():
-            self.logger.debug("[kafka-command-engin#offer] successfully produced message command")
-        else:
-            self.logger.error("failed to produce a message")
         result: EnveloppeKafkaResult[SubjectResultKafka] = self.__subscriptions.get(correlation_id).result(timeout=30)
         self.logger.debug(f"[kafka-command-engin#offer] correlation : {correlation_id}")
         self.__subscriptions.unsubscribe(correlation_id)
