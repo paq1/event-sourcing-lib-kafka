@@ -1,7 +1,9 @@
 import logging
 from typing import Generic, TypeVar
 
-from kafka import KafkaConsumer, KafkaProducer
+from kafka import KafkaConsumer
+
+from event_sourcing.core.queue_message_producer import QueueMessageProducerHandler
 
 T = TypeVar('T')
 
@@ -9,14 +11,14 @@ T = TypeVar('T')
 class CommandsListener(Generic[T]):
     logger = logging.getLogger(f"{__name__}#CommandsListener")
 
-    def __init__(self, topic_commands_name: str, producer: KafkaProducer):
+    def __init__(self, topic_commands_name: str, queue_message_producer_handler: QueueMessageProducerHandler):
         self.consumer = KafkaConsumer(
             topic_commands_name,
             bootstrap_servers='192.168.1.61:9092',
             group_id=f"consumer_cqrs_grp_2",
             auto_offset_reset="latest"  # "earliest"
         )
-        self.producer = producer
+        self.queue_message_producer_handler = queue_message_producer_handler
         self.running = True
 
     def run(self):
@@ -27,16 +29,11 @@ class CommandsListener(Generic[T]):
             # mkdmkd todo traitement de la command ici avec le command dispatcher
             # mkdmkd todo insertion en db
 
-            message_send_f = self.__produce(
+            self.queue_message_producer_handler.produce_message_sync(
                 topic="subject-cqrs-results",
                 message={"result": "autre donnees"},
                 key=key
             )
-            try:
-                _ = message_send_f.get(timeout=10)
-                self.logger.debug("message sent successfully")
-            except Exception as e:
-                self.logger.error(e)
 
             if not self.running:
                 self.logger.info("stopping loop")
@@ -45,7 +42,3 @@ class CommandsListener(Generic[T]):
 
     def stop(self):
         self.running = False
-
-    def __produce(self, message: dict, topic: str, key: str):
-        response_f = self.producer.send(topic=topic, key=key.encode(), value=message)
-        return response_f

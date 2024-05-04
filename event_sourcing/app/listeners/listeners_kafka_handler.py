@@ -7,17 +7,17 @@ from event_sourcing.app.kafka_command_engine import SubjectResultKafka
 from event_sourcing.app.kafka_result_subscription import KafkaResultSubscriptions
 from event_sourcing.app.listeners import CommandsListener, ResultsListener
 from event_sourcing.app.listeners.threads import ThreadListenerCommands, ThreadListenerResults
+from event_sourcing.core.queue_message_producer import QueueMessageProducerHandler
 
 
 class ListenersKafkaHandler(object):
     logger = logging.getLogger(f"{__name__}#ListenersKafkaHandler")
 
-    def __init__(self, kafka_result_subscriptions: KafkaResultSubscriptions[SubjectResultKafka]):
-        self.kafka_producer = KafkaProducer(bootstrap_servers='192.168.1.61:9092',
-                                            value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+    def __init__(self, kafka_result_subscriptions: KafkaResultSubscriptions[SubjectResultKafka],
+                 queue_message_producer: QueueMessageProducerHandler):
         commands_listener: CommandsListener[str] = CommandsListener(
             "subject-cqrs-commands",
-            self.kafka_producer
+            queue_message_producer
         )
         results_listener: ResultsListener[str] = ResultsListener(
             "subject-cqrs-results",

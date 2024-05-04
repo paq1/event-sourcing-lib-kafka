@@ -1,12 +1,9 @@
-import json
 import logging
 import uuid
 from typing import Generic, TypeVar
 
-from kafka import KafkaProducer
-from kafka.producer.future import FutureRecordMetadata
-
 from event_sourcing.app.kafka_result_subscription import KafkaResultSubscriptions, EnveloppeKafkaResult
+from event_sourcing.core.queue_message_producer import QueueMessageProducerHandler
 
 STATE = TypeVar('STATE')
 COMMAND = TypeVar('COMMAND')
@@ -25,10 +22,13 @@ class SubjectResultKafka(object):
 class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
     logger = logging.getLogger(f"{__name__}#KafkaCommandEngine")
 
-    def __init__(self, subscriptions: KafkaResultSubscriptions[SubjectResultKafka],
-                 topic_name: str = "subject-cqrs-commands"):
-        self.producer = KafkaProducer(bootstrap_servers='192.168.1.61:9092',
-                                      value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+    def __init__(
+            self,
+            subscriptions: KafkaResultSubscriptions[SubjectResultKafka],
+            queue_producer_handler: QueueMessageProducerHandler,
+            topic_name: str = "subject-cqrs-commands",
+    ):
+        self.queue_producer_handler = queue_producer_handler
 
         self.topic_commands_name: str = topic_name
 
@@ -38,22 +38,13 @@ class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
         correlation_id = str(uuid.uuid4())
         self.logger.debug(f"[kafka-command-engin#offer] creation du correlation id : {correlation_id}")
         self.__subscriptions.subscribe(correlation_id)
-        produce_f: FutureRecordMetadata = self.__produce(
+        self.queue_producer_handler.produce_message_sync(
             {'ma_command': 'toto en slip'},
             "subject-cqrs-commands",  # fixme pas magique string
             key=correlation_id
         )
-        try:
-            _ = produce_f.get(timeout=10)
-            self.logger.debug("successfully produced message command")
-        except Exception as e:
-            self.logger.error(e)
 
         result: EnveloppeKafkaResult[SubjectResultKafka] = self.__subscriptions.get(correlation_id).result(timeout=30)
         self.logger.debug(f"[kafka-command-engin#offer] correlation : {correlation_id}")
         self.__subscriptions.unsubscribe(correlation_id)
         return result
-
-    def __produce(self, message: dict, topic: str, key: str):
-        response_f = self.producer.send(topic=topic, key=key.encode(), value=message)
-        return response_f
