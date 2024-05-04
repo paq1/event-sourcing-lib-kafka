@@ -39,8 +39,4 @@ async def main(debug, logging_level):
 
 
 if __name__ == "__main__":
-    logger.info("test")
     asyncio.run(main(debug=True, logging_level=logging.DEBUG))
-    logger.debug("test")
-    #
-    # print("fin main")
