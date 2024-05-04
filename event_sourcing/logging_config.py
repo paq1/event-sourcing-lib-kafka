@@ -40,8 +40,6 @@ def setup_logging(debug=True, logging_level=logging.INFO):
             filename="main.log",
             level=logging_level,
         )
-    mode = "dev" if debug else "production"
-    logging.getLogger(__name__).info(f"lancement du programme en mode [{mode}]")
     # change le niveau de log du logger kafka
     logger_kafka = logging.getLogger("kafka")
     logger_kafka.setLevel(logging.WARN)

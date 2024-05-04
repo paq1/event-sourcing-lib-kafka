@@ -25,9 +25,14 @@ class CommandsListener(Generic[T]):
         for msg in self.consumer:
             key = msg.key.decode('utf-8')
             self.logger.debug(f"received message {key}")
-            self.logger.debug(f"traitement de la command : {key}")
             # mkdmkd todo traitement de la command ici avec le command dispatcher
+            self.logger.warn("[not implemented] le gestionnaire de commande n'est pas encore implémenté")
+            self.logger.warn("[not implemented] pas de génération d'evenements")
+            # mkdmkd todo appeler le reducer et générer le nouvel etat
+            self.logger.warn("[not implemented] pas de reducer")
             # mkdmkd todo insertion en db
+            self.logger.warn("[not implemented] pas de persistance des evenements")
+            self.logger.warn("[not implemented] pas de persistance des états")
 
             self.queue_message_producer_handler.produce_message_sync(
                 topic="subject-cqrs-results",
