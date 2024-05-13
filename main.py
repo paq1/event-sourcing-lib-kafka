@@ -8,6 +8,7 @@ from kafka import KafkaProducer
 from event_sourcing.app import *
 from event_sourcing.app import ListenersKafkaHandler
 from event_sourcing.app.listeners.kafka_producer_handler import KafkaProducerHandler
+from event_sourcing.concept_serde import run
 from event_sourcing.logging_config import setup_logging
 from event_sourcing.models.command import Command
 from event_sourcing.models.command_test.command_creation_bob import CreerBobCommand, CommandTest
@@ -51,4 +52,5 @@ async def main(debug, logging_level):
 
 
 if __name__ == "__main__":
-    asyncio.run(main(debug=True, logging_level=logging.DEBUG))
+    # asyncio.run(main(debug=True, logging_level=logging.DEBUG))
+    run()
