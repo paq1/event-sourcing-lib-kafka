@@ -39,7 +39,7 @@ class ResultsListener(Generic[T]):
                     )
                 )
             except Exception:
-                self.logger.warn(
+                self.logger.warning(
                     f"pas de souscription en cours pour le correlation id : {correlation_id}"
                 )
 
