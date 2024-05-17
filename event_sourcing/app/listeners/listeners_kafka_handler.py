@@ -30,6 +30,8 @@ class ListenersKafkaHandler(object):
     def start_listeners(self):
         self.th_commands_listener.start()
         self.th_results_listener.start()
+        self.logger.debug("listeners started")
+
 
     def stop_listeners(self):
         self.th_commands_listener.stop()

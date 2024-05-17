@@ -14,7 +14,7 @@ class CommandsListener(Generic[T]):
     def __init__(self, topic_commands_name: str, queue_message_producer_handler: QueueMessageProducerHandler):
         self.consumer = KafkaConsumer(
             topic_commands_name,
-            bootstrap_servers='192.168.1.61:9092',
+            bootstrap_servers='192.168.1.19:9092',
             group_id=f"consumer_cqrs_grp_2",
             auto_offset_reset="latest"  # "earliest"
         )

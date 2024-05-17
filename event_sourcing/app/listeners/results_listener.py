@@ -16,7 +16,7 @@ class ResultsListener(Generic[T]):
     def __init__(self, topic_commands_name: str, subscriptions: KafkaResultSubscriptions[SubjectResultKafka]):
         self.consumer = KafkaConsumer(
             topic_commands_name,
-            bootstrap_servers='192.168.1.61:9092',
+            bootstrap_servers='192.168.1.19:9092',
             group_id=f"consumer_cqrs_grp_2",
             auto_offset_reset="latest"  # "earliest"
         )

@@ -19,6 +19,7 @@ class SimpleObject(object):
 
 def run() -> None:
     data = '{"_kind": "urn:api:test:simple-object","name": "Pierre", "adresse": { "rue": "12 rue du pré", "pays": "fr"}}'
+
     simple_obj_schema = marshmallow_dataclass.class_schema(SimpleObject)()
     obj = simple_obj_schema.loads(data)
     print(obj)
