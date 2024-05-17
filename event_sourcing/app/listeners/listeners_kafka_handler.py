@@ -1,11 +1,9 @@
-import json
 import logging
 
-from kafka import KafkaProducer
-
-from event_sourcing.app.kafka_command_engine import SubjectResultKafka
+from event_sourcing.app.kafka.enveloppe_kafka import SubjectResultKafka
 from event_sourcing.app.kafka_result_subscription import KafkaResultSubscriptions
-from event_sourcing.app.listeners import CommandsListener, ResultsListener
+from event_sourcing.app.listeners.commands_listener import CommandsListener
+from event_sourcing.app.listeners.results_listener import ResultsListener
 from event_sourcing.app.listeners.threads import ThreadListenerCommands, ThreadListenerResults
 from event_sourcing.core.queue_message_producer import QueueMessageProducerHandler
 
@@ -30,8 +28,7 @@ class ListenersKafkaHandler(object):
     def start_listeners(self):
         self.th_commands_listener.start()
         self.th_results_listener.start()
-        self.logger.debug("listeners started")
-
+        self.logger.info("listeners started")
 
     def stop_listeners(self):
         self.th_commands_listener.stop()

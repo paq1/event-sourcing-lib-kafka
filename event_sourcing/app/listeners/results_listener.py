@@ -4,7 +4,7 @@ from typing import Generic, TypeVar
 
 from kafka import KafkaConsumer
 
-from event_sourcing.app.kafka_command_engine import SubjectResultKafka
+from event_sourcing.app.kafka.enveloppe_kafka import SubjectResultKafka
 from event_sourcing.app.kafka_result_subscription import KafkaResultSubscriptions, EnveloppeKafkaResult
 
 T = TypeVar('T')
