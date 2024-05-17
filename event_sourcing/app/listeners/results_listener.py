@@ -28,7 +28,7 @@ class ResultsListener(Generic[T]):
             key: str = msg.key.decode('utf-8')
             self.logger.debug(msg)
             self.logger.debug(f"traitement du message de resultat : {key}")
-            # mkdmkd todo traitement de la command ici
+            # mkdmkd todo traitement du resultat ici
             correlation_id: str = key
             self.logger.debug(f"correlation_id : {correlation_id}")
             try:

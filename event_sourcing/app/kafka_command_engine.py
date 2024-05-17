@@ -4,6 +4,7 @@ from typing import Generic, TypeVar
 
 from kafka import KafkaConsumer
 
+from event_sourcing.app.command_handlers.command_dispacher import CommandDispatcher
 from event_sourcing.app.kafka.enveloppe_kafka import SubjectResultKafka
 from event_sourcing.app.listeners.listeners_kafka_handler import ListenersKafkaHandler
 from event_sourcing.app.kafka_result_subscription import KafkaResultSubscriptions, EnveloppeKafkaResult
@@ -22,6 +23,7 @@ class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
 
     def __init__(
             self,
+            command_dispatcher: CommandDispatcher[STATE, COMMAND, EVENT],
             kafka_producer_handler: KafkaProducerHandler,
             subscriptions: KafkaResultSubscriptions[SubjectResultKafka],
             queue_producer_handler: QueueMessageProducerHandler,
@@ -29,6 +31,7 @@ class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
             servers: str = "192.168.1.19:9092",
             group_id: str = "default-engine-consumer",
     ):
+        self.command_dispatcher = command_dispatcher
         self.queue_producer_handler = queue_producer_handler
 
         self.topic_commands_name: str = f"{ontology}-cqrs-commands"
@@ -48,8 +51,11 @@ class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
             auto_offset_reset="latest"
         )
 
-        self.listeners_kafka_handler: ListenersKafkaHandler = ListenersKafkaHandler(subscriptions,
-                                                                                    kafka_producer_handler)
+        self.listeners_kafka_handler: ListenersKafkaHandler[STATE, COMMAND, EVENT] = ListenersKafkaHandler(
+            subscriptions,
+            kafka_producer_handler,
+            command_dispatcher
+        )
 
         self.__subscriptions = subscriptions
 
@@ -72,7 +78,7 @@ class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
     def __from_command_to_record(command: Command[COMMAND]) -> dict:
         return {
             "name": command.handler_name,
-            "body": command.command.schema(),
+            "body": command.data.schema(),
             "entityId": command.entityId,
         }
 

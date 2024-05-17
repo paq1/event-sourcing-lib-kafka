@@ -3,15 +3,24 @@ from typing import Generic, TypeVar
 
 from kafka import KafkaConsumer
 
+from event_sourcing.app.command_handlers.command_dispacher import CommandDispatcher
 from event_sourcing.core.queue_message_producer import QueueMessageProducerHandler
 
-T = TypeVar('T')
+COMMAND = TypeVar('COMMAND')
+STATE = TypeVar('STATE')
+EVENT = TypeVar('EVENT')
 
 
-class CommandsListener(Generic[T]):
+class CommandsListener(Generic[STATE, COMMAND, EVENT]):
     logger = logging.getLogger(f"{__name__}#CommandsListener")
 
-    def __init__(self, topic_commands_name: str, queue_message_producer_handler: QueueMessageProducerHandler):
+    def __init__(
+            self,
+            topic_commands_name: str,
+            queue_message_producer_handler: QueueMessageProducerHandler,
+            command_dispatcher: CommandDispatcher[STATE, COMMAND, EVENT]
+    ):
+        self.command_dispatcher = command_dispatcher
         self.consumer = KafkaConsumer(
             topic_commands_name,
             bootstrap_servers='192.168.1.19:9092',
