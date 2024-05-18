@@ -59,7 +59,7 @@ class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
 
         self.__subscriptions = subscriptions
 
-    async def offer(self, command: Command[COMMAND]) -> EnveloppeKafkaResult[SubjectResultKafka]:
+    async def offer(self, command: Command) -> EnveloppeKafkaResult[SubjectResultKafka]:
         correlation_id = str(uuid.uuid4())
         self.logger.debug(f"[kafka-command-engin#offer] creation du correlation id : {correlation_id}")
         self.__subscriptions.subscribe(correlation_id)
@@ -75,10 +75,10 @@ class KafkaCommandEngine(Generic[STATE, COMMAND, EVENT]):
         return result
 
     @staticmethod
-    def __from_command_to_record(command: Command[COMMAND]) -> dict:
+    def __from_command_to_record(command: Command) -> dict:
         return {
             "name": command.handler_name,
-            "body": command.data.schema(),
+            "body": command.data,
             "entityId": command.entityId,
         }
 

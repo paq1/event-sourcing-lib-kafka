@@ -1,7 +1,8 @@
+from event_sourcing.models.from_dict import CreateFromDict
 from event_sourcing.models.has_schema import HasSchema
 
 
-class CommandTest(HasSchema):
+class CommandTest(HasSchema, CreateFromDict):
     ...
 
 
@@ -15,3 +16,7 @@ class CreerBobCommand(CommandTest):
             "nom": self.nom,
             "prenom": self.prenom
         }
+
+    @staticmethod
+    def from_dict(schema: dict):
+        return CreerBobCommand(schema["nom"], schema["prenom"])

@@ -7,7 +7,7 @@ COMMAND = TypeVar('COMMAND')
 
 
 @dataclass
-class Command(Generic[COMMAND], object):
+class Command(object):
     entityId: str
     handler_name: str
-    data: COMMAND
+    data: dict

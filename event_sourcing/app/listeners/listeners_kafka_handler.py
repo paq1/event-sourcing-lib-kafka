@@ -1,6 +1,8 @@
 import logging
 from typing import TypeVar, Generic
 
+import asyncio
+
 from event_sourcing.app.command_handlers.command_dispacher import CommandDispatcher
 from event_sourcing.app.kafka.enveloppe_kafka import SubjectResultKafka
 from event_sourcing.app.kafka_result_subscription import KafkaResultSubscriptions

@@ -9,6 +9,13 @@ class CreatePersonneHandler(CommandHandlerCreate[CommandCreate, State, Event]):
     def __init__(self):
         super().__init__("create_personne")
 
+    def validate_command(self, cmd: dict) -> CommandCreate | None:
+        try:
+            return CommandCreate(cmd["nom"], cmd["prenom"])
+        except Exception as e:
+            self.logger.error(e)
+            return None
+
     async def on_command(self, cmd: CommandCreate, entityId: str) -> Event:
         self.logger.debug("appel au command handler de creation de personne")
         return CreateEvent(by="usr:mkd", prenom=cmd.prenom, nom=cmd.nom)

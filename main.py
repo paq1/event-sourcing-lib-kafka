@@ -28,14 +28,14 @@ async def main(debug, logging_level):
 
 
 async def simulation_offer(component: Component) -> None:
-    command1 = Command(entityId=str(uuid.uuid4()), handler_name="creer-bob",
-                       data=CreerBobCommand(nom="PAQUIN", prenom="Pierre"))
+    command1 = Command(entityId=str(uuid.uuid4()), handler_name="create_personne",
+                       data={"nom": "PAQUIN", "prenom": "Pierre"})
 
     traitement = await component.exemple_kafka_engine.offer(command=command1)
     logger.info(f'resultat du traitement : {traitement.result}')
 
-    command2 = Command(entityId=str(uuid.uuid4()), handler_name="creer-bob",
-                       data=CreerBobCommand(nom="DJAMA", prenom="Yoann"))
+    command2 = Command(entityId=str(uuid.uuid4()), handler_name="create_personne",
+                       data={"nom": "PAQUIN", "prenom": "Pierre"})
 
     traitement2 = await component.exemple_kafka_engine.offer(command=command2)
     logger.info(f'resultat 2 du traitement : {traitement2.result}')

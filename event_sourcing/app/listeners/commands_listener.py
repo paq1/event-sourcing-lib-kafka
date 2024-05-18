@@ -1,12 +1,15 @@
 import logging
-from typing import Generic, TypeVar
+import json
+from typing import Generic, TypeVar, Type
 
 from kafka import KafkaConsumer
 
 from event_sourcing.app.command_handlers.command_dispacher import CommandDispatcher
 from event_sourcing.core.queue_message_producer import QueueMessageProducerHandler
+from event_sourcing.models.command import Command
+from event_sourcing.models.from_dict import CreateFromDict
 
-COMMAND = TypeVar('COMMAND')
+COMMAND = TypeVar('COMMAND', bound=CreateFromDict)
 STATE = TypeVar('STATE')
 EVENT = TypeVar('EVENT')
 
@@ -36,6 +39,16 @@ class CommandsListener(Generic[STATE, COMMAND, EVENT]):
             value = msg.value.decode('utf-8')
             self.logger.debug(f"received message {key} {value}")
             # mkdmkd todo traitement de la command ici avec le command dispatcher
+            # step 1 from str to dict
+            dict_command_record_value = json.loads(value)
+
+            entity_id = dict_command_record_value["entityId"]
+            ch_name = dict_command_record_value["name"]
+            command_dict: dict = dict_command_record_value["body"]
+            command: Command = Command(entity_id, ch_name, command_dict)
+            # # step 1 from value(json) to Command
+            # resp = await self.command_dispatcher.exec(command)
+
             self.logger.warning("[not implemented] le gestionnaire de commande n'est pas encore implémenté")
             self.logger.warning("[not implemented] pas de génération d'evenements")
             # mkdmkd todo appeler le reducer et générer le nouvel etat
