@@ -1,7 +1,8 @@
-import logging
 import json
-from typing import Generic, TypeVar, Type
+import logging
+from typing import Generic, TypeVar
 
+import asyncio
 from kafka import KafkaConsumer
 
 from event_sourcing.app.command_handlers.command_dispacher import CommandDispatcher
@@ -47,7 +48,13 @@ class CommandsListener(Generic[STATE, COMMAND, EVENT]):
             command_dict: dict = dict_command_record_value["body"]
             command: Command = Command(entity_id, ch_name, command_dict)
             # # step 1 from value(json) to Command
-            # resp = await self.command_dispatcher.exec(command)
+
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            task = loop.create_task(self.command_dispatcher.exec(command))
+            loop.run_forever()
+            r = task.result()
+            resp = self.command_dispatcher.exec(command)
 
             self.logger.warning("[not implemented] le gestionnaire de commande n'est pas encore implémenté")
             self.logger.warning("[not implemented] pas de génération d'evenements")
