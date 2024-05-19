@@ -34,8 +34,8 @@ async def simulation_offer(component: Component) -> None:
     traitement = await component.exemple_kafka_engine.offer(command=command1)
     logger.info(f'resultat du traitement : {traitement.result}')
 
-    command2 = Command(entityId=str(uuid.uuid4()), handler_name="create_personne",
-                       data={"nom": "PAQUIN", "prenom": "Pierre"})
+    command2 = Command(entityId=str(uuid.uuid4()), handler_name="update_personne",
+                       data={"nom": "DJAMA", "prenom": "Yoann"})
 
     traitement2 = await component.exemple_kafka_engine.offer(command=command2)
     logger.info(f'resultat 2 du traitement : {traitement2.result}')

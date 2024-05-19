@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Optional
 
 import asyncio
 from kafka import KafkaConsumer
@@ -47,7 +47,14 @@ class CommandsListener(Generic[STATE, COMMAND, EVENT]):
             ch_name = dict_command_record_value["name"]
             command_dict: dict = dict_command_record_value["body"]
             command: Command = Command(entity_id, ch_name, command_dict)
-            event: EVENT | None = await self.command_dispatcher.exec(command)
+
+            # todo recuperation du state via entityId
+            state: Optional[STATE] = None
+
+            event: EVENT | None = await self.command_dispatcher.exec(command, state)
+
+            self.logger.info(f"event généré : {event}")
+
             # mkdmkd todo appeler le reducer et générer le nouvel etat
             self.logger.warning("[not implemented] pas de reducer")
             # mkdmkd todo insertion en db

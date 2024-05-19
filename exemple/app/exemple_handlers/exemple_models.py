@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -11,6 +12,10 @@ class CommandCreate(CommandApi):
     nom: str
     prenom: str
 
+@dataclass
+class CommandUpdate(CommandApi):
+    nom: Optional[str]
+    prenom: Optional[str]
 
 @dataclass
 class State(object):
@@ -18,7 +23,7 @@ class State(object):
 
 
 @dataclass
-class CreateState(State):
+class PersonneState(State):
     nom: str
     prenom: str
 
@@ -29,6 +34,11 @@ class Event(object):
 
 
 @dataclass
-class CreateEvent(Event):
+class CreatePersonneEvent(Event):
+    nom: str
+    prenom: str
+
+@dataclass
+class UpdatePersonneEvent(Event):
     nom: str
     prenom: str
