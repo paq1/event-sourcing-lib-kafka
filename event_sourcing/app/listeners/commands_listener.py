@@ -54,7 +54,7 @@ class CommandsListener(Generic[STATE, COMMAND, EVENT]):
 
             event: EVENT | None = await self.command_dispatcher.exec(command, state)
 
-            self.logger.info(f"event généré : {event}")
+            self.logger.debug(f"event généré : {event}")
 
             # mkdmkd todo appeler le reducer et générer le nouvel etat
             self.logger.warning("[not implemented] pas de reducer")

@@ -42,4 +42,3 @@ async def simulation_offer(component: Component) -> None:
 
 if __name__ == "__main__":
     asyncio.run(main(debug=True, logging_level=logging.DEBUG))
-    # run()
