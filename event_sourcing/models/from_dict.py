@@ -1,0 +1,3 @@
+class CreateFromDict:
+    @staticmethod
+    def from_dict(d: dict) -> 'CreateFromDict': ...

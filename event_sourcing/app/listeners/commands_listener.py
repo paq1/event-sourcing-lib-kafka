@@ -1,43 +1,70 @@
+import json
 import logging
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Optional
 
+import asyncio
 from kafka import KafkaConsumer
 
+from event_sourcing.app.command_handlers.command_dispacher import CommandDispatcher
 from event_sourcing.core.queue_message_producer import QueueMessageProducerHandler
+from event_sourcing.models.can_transform_into_dict import CanTransformIntoDict
+from event_sourcing.models.command import Command
+from event_sourcing.models.from_dict import CreateFromDict
 
-T = TypeVar('T')
+COMMAND = TypeVar('COMMAND', bound=CreateFromDict)
+STATE = TypeVar('STATE')
+EVENT = TypeVar('EVENT', bound=CanTransformIntoDict)
 
 
-class CommandsListener(Generic[T]):
+class CommandsListener(Generic[STATE, COMMAND, EVENT]):
     logger = logging.getLogger(f"{__name__}#CommandsListener")
 
-    def __init__(self, topic_commands_name: str, queue_message_producer_handler: QueueMessageProducerHandler):
+    def __init__(
+            self,
+            topic_commands_name: str,
+            queue_message_producer_handler: QueueMessageProducerHandler,
+            command_dispatcher: CommandDispatcher[STATE, COMMAND, EVENT]
+    ):
+        self.command_dispatcher = command_dispatcher
         self.consumer = KafkaConsumer(
             topic_commands_name,
-            bootstrap_servers='192.168.1.61:9092',
+            bootstrap_servers='192.168.1.19:9092',
             group_id=f"consumer_cqrs_grp_2",
             auto_offset_reset="latest"  # "earliest"
         )
         self.queue_message_producer_handler = queue_message_producer_handler
         self.running = True
 
-    def run(self):
+    async def run(self):
         for msg in self.consumer:
             key = msg.key.decode('utf-8')
             value = msg.value.decode('utf-8')
             self.logger.debug(f"received message {key} {value}")
             # mkdmkd todo traitement de la command ici avec le command dispatcher
-            self.logger.warn("[not implemented] le gestionnaire de commande n'est pas encore implémenté")
-            self.logger.warn("[not implemented] pas de génération d'evenements")
+            # step 1 from str to dict
+            dict_command_record_value = json.loads(value)
+
+            entity_id = dict_command_record_value["entityId"]
+            ch_name = dict_command_record_value["name"]
+            command_dict: dict = dict_command_record_value["body"]
+            command: Command = Command(entity_id, ch_name, command_dict)
+
+            # todo recuperation du state via entityId
+            state: Optional[STATE] = None
+
+            event: EVENT | None = await self.command_dispatcher.exec(command, state)
+
+            self.logger.info(f"event généré : {event}")
+
             # mkdmkd todo appeler le reducer et générer le nouvel etat
-            self.logger.warn("[not implemented] pas de reducer")
+            self.logger.warning("[not implemented] pas de reducer")
             # mkdmkd todo insertion en db
-            self.logger.warn("[not implemented] pas de persistance des evenements")
-            self.logger.warn("[not implemented] pas de persistance des états")
+            self.logger.warning("[not implemented] pas de persistance des evenements")
+            self.logger.warning("[not implemented] pas de persistance des états")
 
             self.queue_message_producer_handler.produce_message_sync(
                 topic="subject-cqrs-results",
-                message={"result": "autre donnees"},
+                message={"attributes": event.transform_into_dict(), "code": "200"},
                 key=key
             )
 
