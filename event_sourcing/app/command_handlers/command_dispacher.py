@@ -41,10 +41,10 @@ class CommandDispatcher(Generic[STATE, COMMAND, EVENT]):
         self.command_handlers.append(handler)
         return self
 
-    async def exec(self, command: Command, state: STATE = None) -> Optional[EVENT]:
+    async def exec(self, command: Command, state: Optional[STATE] = None) -> Optional[EVENT]:
         handlers = [handler for handler in self.command_handlers if handler.name == command.handler_name]
         if len(handlers) > 0:
-            handler = handlers[0]
+            handler: CommandHandler[STATE, COMMAND, EVENT] = handlers[0]
             if handler.kind == "create":
                 self.logger.debug("traitement d'un handler de creation")
                 create_handler: CommandHandlerCreate[STATE, COMMAND, EVENT] = handler

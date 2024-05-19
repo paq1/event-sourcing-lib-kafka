@@ -1,2 +1,2 @@
-from event_sourcing.app.listeners.threads.thread_listener_commands import ThreadListenerCommands
+from event_sourcing.app.listeners.threads.thread_listener_commands import ThreadListenerCommandsHandler
 from event_sourcing.app.listeners.threads.thread_listener_results import ThreadListenerResults

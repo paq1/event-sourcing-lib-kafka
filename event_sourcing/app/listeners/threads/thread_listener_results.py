@@ -1,7 +1,5 @@
 from threading import Thread
 
-import asyncio
-
 from event_sourcing.app.listeners.results_listener import ResultsListener
 
 

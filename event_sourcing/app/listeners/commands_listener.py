@@ -34,7 +34,7 @@ class CommandsListener(Generic[STATE, COMMAND, EVENT]):
         self.queue_message_producer_handler = queue_message_producer_handler
         self.running = True
 
-    def run(self):
+    async def run(self):
         for msg in self.consumer:
             key = msg.key.decode('utf-8')
             value = msg.value.decode('utf-8')
@@ -47,17 +47,7 @@ class CommandsListener(Generic[STATE, COMMAND, EVENT]):
             ch_name = dict_command_record_value["name"]
             command_dict: dict = dict_command_record_value["body"]
             command: Command = Command(entity_id, ch_name, command_dict)
-            # # step 1 from value(json) to Command
-
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            task = loop.create_task(self.command_dispatcher.exec(command))
-            loop.run_forever()
-            r = task.result()
-            resp = self.command_dispatcher.exec(command)
-
-            self.logger.warning("[not implemented] le gestionnaire de commande n'est pas encore implémenté")
-            self.logger.warning("[not implemented] pas de génération d'evenements")
+            event: EVENT | None = await self.command_dispatcher.exec(command)
             # mkdmkd todo appeler le reducer et générer le nouvel etat
             self.logger.warning("[not implemented] pas de reducer")
             # mkdmkd todo insertion en db

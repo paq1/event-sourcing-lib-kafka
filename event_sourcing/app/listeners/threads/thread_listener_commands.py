@@ -10,16 +10,21 @@ STATE = TypeVar('STATE')
 EVENT = TypeVar('EVENT')
 
 
-class ThreadListenerCommands(Thread, Generic[STATE, COMMAND, EVENT]):
+class ThreadListenerCommandsHandler(Generic[STATE, COMMAND, EVENT]):
     def __init__(self, commands_listener: CommandsListener[STATE, COMMAND, EVENT]):
-        super().__init__()
         self.commands_listener = commands_listener
+        self.__thread = Thread(target=self.thread_callback,)
 
-    def run(self):
-        self.commands_listener.run()
-        # loop = asyncio.new_event_loop()
-        # asyncio.set_event_loop(loop)
-        # loop.create_task(self.commands_listener.run())
+    def thread_callback(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        loop.run_until_complete(self.commands_listener.run())
+        loop.close()
+
+    def start(self):
+        self.__thread.start()
 
     def stop(self):
         self.commands_listener.stop()
+        self.__thread.join()
