@@ -7,12 +7,13 @@ from kafka import KafkaConsumer
 
 from event_sourcing.app.command_handlers.command_dispacher import CommandDispatcher
 from event_sourcing.core.queue_message_producer import QueueMessageProducerHandler
+from event_sourcing.models.can_transform_into_dict import CanTransformIntoDict
 from event_sourcing.models.command import Command
 from event_sourcing.models.from_dict import CreateFromDict
 
 COMMAND = TypeVar('COMMAND', bound=CreateFromDict)
 STATE = TypeVar('STATE')
-EVENT = TypeVar('EVENT')
+EVENT = TypeVar('EVENT', bound=CanTransformIntoDict)
 
 
 class CommandsListener(Generic[STATE, COMMAND, EVENT]):
@@ -63,7 +64,7 @@ class CommandsListener(Generic[STATE, COMMAND, EVENT]):
 
             self.queue_message_producer_handler.produce_message_sync(
                 topic="subject-cqrs-results",
-                message={"result": "autre donnees"},
+                message={"attributes": event.transform_into_dict(), "code": "200"},
                 key=key
             )
 

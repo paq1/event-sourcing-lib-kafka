@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from event_sourcing.models.can_transform_into_dict import CanTransformIntoDict
+
 
 @dataclass
 class CommandApi(object):
@@ -29,16 +31,28 @@ class PersonneState(State):
 
 
 @dataclass
-class Event(object):
+class Event(CanTransformIntoDict):
     by: str
 
 
 @dataclass
-class CreatePersonneEvent(Event):
+class CreatePersonneEvent(Event, CanTransformIntoDict):
     nom: str
     prenom: str
 
+    def transform_into_dict(self) -> dict:
+        return {
+            "nom": self.nom,
+            "prenom": self.prenom,
+        }
+
 @dataclass
-class UpdatePersonneEvent(Event):
+class UpdatePersonneEvent(Event, CanTransformIntoDict):
     nom: str
     prenom: str
+
+    def transform_into_dict(self) -> dict:
+        return {
+            "nom": self.nom,
+            "prenom": self.prenom,
+        }

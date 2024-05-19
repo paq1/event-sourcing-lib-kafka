@@ -5,7 +5,6 @@ import asyncio
 
 from event_sourcing.logging_config import setup_logging
 from event_sourcing.models.command import Command
-from event_sourcing.models.command_test.command_creation_bob import CreerBobCommand
 from exemple.app.components import Component
 
 logger = logging.getLogger(__name__)

@@ -26,6 +26,7 @@ class ResultsListener(Generic[T]):
     def run(self):
         for msg in self.consumer:
             key: str = msg.key.decode('utf-8')
+            value: dict = msg.value.decode('utf-8')
             self.logger.debug(msg)
             self.logger.debug(f"traitement du message de resultat : {key}")
             # mkdmkd todo traitement du resultat ici
@@ -35,7 +36,7 @@ class ResultsListener(Generic[T]):
                 promesse: Future[EnveloppeKafkaResult[SubjectResultKafka]] = self.subscriptions.get(correlation_id)
                 promesse.set_result(
                     EnveloppeKafkaResult[SubjectResultKafka](
-                        SubjectResultKafka(correlation_id, {"msg": "gg a toi"})
+                        SubjectResultKafka(correlation_id, value)
                     )
                 )
             except Exception:
