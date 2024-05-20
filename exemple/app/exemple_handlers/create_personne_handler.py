@@ -1,4 +1,4 @@
-from event_sourcing.app.command_handlers.command_dispacher import CommandHandlerCreate
+from event_sourcing.app.command_handlers.command_handler import CommandHandlerCreate
 from exemple.app.exemple_handlers.exemple_models import CommandCreate, State, Event, CreatePersonneEvent
 import logging
 

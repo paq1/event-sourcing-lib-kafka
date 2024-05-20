@@ -52,7 +52,9 @@ class CommandsListener(Generic[STATE, COMMAND, EVENT]):
             # todo recuperation du state via entityId
             state: Optional[STATE] = None
 
-            event: EVENT | None = await self.command_dispatcher.exec(command, state)
+            status: Optional[int]
+            event: Optional[EVENT]
+            event, status = await self.command_dispatcher.exec(command, state)
 
             self.logger.debug(f"event généré : {event}")
 
@@ -64,7 +66,7 @@ class CommandsListener(Generic[STATE, COMMAND, EVENT]):
 
             self.queue_message_producer_handler.produce_message_sync(
                 topic="subject-cqrs-results",
-                message={"attributes": event.transform_into_dict(), "code": "200"},
+                message={"attributes": event.transform_into_dict(), "code": str(status)},
                 key=key
             )
 

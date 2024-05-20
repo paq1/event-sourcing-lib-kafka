@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from event_sourcing.app.command_handlers.command_dispacher import CommandHandlerUpdate
+from event_sourcing.app.command_handlers.command_handler import CommandHandlerUpdate
 from exemple.app.exemple_handlers.exemple_models import Event, CommandUpdate, PersonneState, UpdatePersonneEvent
 
 
